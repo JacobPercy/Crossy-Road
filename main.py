@@ -1,5 +1,6 @@
 import pygame
 import random
+from math import sqrt
 
 pygame.init()
 #RGB color stuff
@@ -39,7 +40,7 @@ class Road():
 		self.color = BLACK
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
-		self.speed = random.randint(5,15)
+		self.speed = int(2.0*sqrt(random.randint(9,60)))
 		self.dir = random.getrandbits(1) #True is left to right, False is right to left
 		self.car_width = random.randint(65,120)
 		self.car_count = random.randint(3,5)
@@ -138,7 +139,7 @@ class Tracks():
 	def __init__(self, posy, val):
 		self.posy = posy
 		self.posx = -200 + val*50
-		self.color_val = random.randint(150,255)
+		self.color_val = random.randint(50,255)
 		self.color = (self.color_val,self.color_val,self.color_val)
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
@@ -148,7 +149,7 @@ class Tracks():
 		if self.color_val < 0:
 			self.color_val = 255
 			self.color = RED
-		elif self.color_val < 25:
+		elif self.color_val < 20:
 			self.color = RED
 		else:
 			self.color = (self.color_val,self.color_val,self.color_val)
@@ -157,9 +158,6 @@ class Tracks():
 		self.posx += xFac * 50
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
-
-def reset_game():
-	return [],[]
 
 def describe_ls(ls):
 	final = []
@@ -172,7 +170,7 @@ def main():
 	#setup
 	running = True
 	start = True
-	class_options = [Road,Field,Field,Field,Road,Tracks]
+	class_options = [Road,Road,Road,Field,Road,Field,Field,Field,Road,Tracks,Water]
 	player = pygame.Rect((WIDTH//2)-20,HEIGHT-95,40,40)
 	total_left_right = 0
 	score = 0
@@ -200,9 +198,11 @@ def main():
 		if score > best_score:
 			best_score = score
 		if start:
+			if score > best_score:
+				best_score = score
 			highest_score_this_round = 0
 			time_since_move = 0
-			obstacles,obj_ls = reset_game()
+			obstacles,obj_ls = [],[]
 			screen.fill(SPECIAL_BLUE)
 
 			screen.blit(img_2,((WIDTH//2)-114,200))
@@ -228,7 +228,7 @@ def main():
 			screen.blit(best_score_img,text_rect_4)
 			score = 0
 			total_left_right = 0
-			for x in range(5):
+			for x in range(4):
 				obj_ls.append(Field(HEIGHT-50-(50*x),0))
 			while start and running:
 				
@@ -316,14 +316,18 @@ def main():
 			if type(obj_ls[x]) == Tracks and obj_ls[x].color == RED and pygame.Rect.colliderect(player,obj_ls[x].Rect):
 				start = True
 				break
+			if type(obj_ls[x]) == Water and pygame.Rect.colliderect(player,obj_ls[x].Rect):
+				start = True
+				break
 
 
 		screen.blit(img,((WIDTH//2)-20-(5*xFac),HEIGHT-95-(5*yFac)))
 		behind_scores_rect = pygame.Rect(0,0,100,60)
+		drawn_rect = pygame.draw.rect(screen, WHITE, behind_scores_rect)
 		screen.blit(your_score_img,(0,0))
 		screen.blit(best_score_img,(0,40))
 		if not running:
-			screen.fill(BLACK)
+			screen.fill(SPECIAL_BLUE)
 		pygame.display.update()
 		clock.tick(FPS)
 
