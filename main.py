@@ -124,21 +124,23 @@ class Tree_Rock():
 
 class Water():
 	def __init__(self, posy, val):
+		self.width_options = []
+		for x in range(2,5):
+			self.width_options.append(50*x)
 		self.log_ls = []
 		self.posy = posy
 		self.posx = -200 + val*50
 		self.color = BLUE
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
-		self.speed = random.randint(2,5)
+		self.speed = random.randint(5,10)
 		self.dir = random.getrandbits(1) #True is left to right, False is right to left
-		self.log_width = random.randint(65,120)
-		self.log_count = random.randint(3,5)
+		self.log_count = random.randint(4,7)
 		self.start_offset = random.randint(0,(WIDTH+400)//self.log_count)
 		for x in range(self.log_count):
 			self.log_ls.append(Log((x*(WIDTH+400//self.log_count) + self.start_offset), 
-													self.posy+5,
-						  							self.log_width, 
+													self.posy+10,
+						  							random.choice(self.width_options), 
 						  							self.speed,
 													self.dir))
 
@@ -148,14 +150,13 @@ class Water():
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 		for x in range(len(self.log_ls)):
-			self.log_ls[x].update(xFac,self.posy+5)
+			self.log_ls[x].update(xFac,self.posy+10)
 
 class Log():
 	def __init__(self,posx,posy,width,speed,dir):
-		print("log exists")
 		self.color = BROWN
 		self.width = width
-		self.height = 40
+		self.height = 30
 		self.posx = posx
 		self.posy = posy
 		self.dir = dir #True is left to right, False is right to left
