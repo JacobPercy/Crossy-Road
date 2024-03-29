@@ -15,9 +15,10 @@ YELLOW = (255,255,0)
 ORANGE = (255,160,16)
 PINK = (255,96,208)
 PURPLE = (160,32,255)
+BROWN = (139,69,19)
 SPECIAL_BLUE = (105,206,236)
 
-car_colors = [RED,RED,RED,RED,ORANGE,YELLOW,YELLOW,BLUE,BLUE,PURPLE,PINK]
+car_colors = [RED,RED,ORANGE,YELLOW,YELLOW,BLUE,BLUE,BLUE,PURPLE,PINK]
 obj_ls = []
 
 WIDTH, HEIGHT = 450, 650
@@ -43,10 +44,10 @@ class Road():
 		self.speed = int(2.0*sqrt(random.randint(9,60)))
 		self.dir = random.getrandbits(1) #True is left to right, False is right to left
 		self.car_width = random.randint(65,120)
-		self.car_count = random.randint(3,5)
+		self.car_count = random.randint(2,4)
 		self.start_offset = random.randint(0,(WIDTH+400)//self.car_count)
 		for x in range(self.car_count):
-			self.car_ls.append(Car(x*(WIDTH+400//self.car_count), 
+			self.car_ls.append(Car((x*(WIDTH+400//self.car_count))+self.start_offset, 
 													self.posy+5, 
 						  							self.car_width, 
 						  							self.speed,self.dir))
@@ -123,17 +124,58 @@ class Tree_Rock():
 
 class Water():
 	def __init__(self, posy, val):
+		self.log_ls = []
 		self.posy = posy
 		self.posx = -200 + val*50
 		self.color = BLUE
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+		self.speed = random.randint(2,5)
+		self.dir = random.getrandbits(1) #True is left to right, False is right to left
+		self.log_width = random.randint(65,120)
+		self.log_count = random.randint(3,5)
+		self.start_offset = random.randint(0,(WIDTH+400)//self.log_count)
+		for x in range(self.log_count):
+			self.log_ls.append(Log((x*(WIDTH+400//self.log_count) + self.start_offset), 
+													self.posy+5,
+						  							self.log_width, 
+						  							self.speed,
+													self.dir))
 
 	def update(self,xFac,yFac):
 		self.posy += yFac * 50
 		self.posx += xFac * 50
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+		for x in range(len(self.log_ls)):
+			self.log_ls[x].update(xFac,self.posy+5)
+
+class Log():
+	def __init__(self,posx,posy,width,speed,dir):
+		print("log exists")
+		self.color = BROWN
+		self.width = width
+		self.height = 40
+		self.posx = posx
+		self.posy = posy
+		self.dir = dir #True is left to right, False is right to left
+		self.speed = speed
+		self.Rect = (self.posx,self.posy,self.width,self.height)
+		self.drawn = pygame.draw.rect(screen,self.color,self.Rect)
+	
+	def update(self,xFac,posy):
+		if self.dir:
+			self.posx += self.speed
+		else:
+			self.posx -= self.speed
+		self.posx += xFac*50
+		if self.posx < -200:
+			self.posx = WIDTH+400 - self.width
+		elif self.posx + self.width > WIDTH+400:
+			self.posx = -200
+		self.Rect = pygame.Rect(self.posx, posy, self.width, self.height)
+		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+
 
 class Tracks():
 	def __init__(self, posy, val):
