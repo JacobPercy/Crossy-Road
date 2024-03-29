@@ -39,18 +39,16 @@ class Road():
 		self.color = BLACK
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
-		self.speed = random.randint(4,8)
+		self.speed = random.randint(5,15)
 		self.dir = random.getrandbits(1) #True is left to right, False is right to left
-		self.car_color = RED
-		self.car_width = random.randint(40,130)
-		self.car_count = random.randint(2,3)
+		self.car_width = random.randint(65,120)
+		self.car_count = random.randint(3,5)
 		self.start_offset = random.randint(0,(WIDTH+400)//self.car_count)
 		for x in range(self.car_count):
 			self.car_ls.append(Car(x*(WIDTH+400//self.car_count), 
 													self.posy+5, 
 						  							self.car_width, 
-						  							self.speed,self.dir, 
-						  							self.car_color))
+						  							self.speed,self.dir))
 		obstacles.extend(self.car_ls)
 				 
 	def update(self,xFac,yFac):
@@ -62,7 +60,7 @@ class Road():
 			self.car_ls[x].update(self.posy+5,xFac)
 
 class Car():
-	def __init__(self,posx,posy,width,speed,dir,color):
+	def __init__(self,posx,posy,width,speed,dir):
 		self.width = width
 		self.height = 40
 		self.posx = posx
@@ -95,7 +93,7 @@ class Field():
 		self.color = LIGHT_GREEN
 		for x in range(3):
 			rand_val = random.randint(-200,WIDTH+350)
-			self.tree_ls.append(Tree(rand_val - rand_val%50,self.posy))
+			self.tree_ls.append(Tree_Rock(rand_val - rand_val%50,self.posy))
 
 	def update(self,xFac,yFac):
 		self.posy += yFac * 50
@@ -107,16 +105,19 @@ class Field():
 			self.tree_ls[x].update(xFac,yFac)
 
 
-class Tree():
+class Tree_Rock():
 	def __init__(self,posx,posy):
+		options = [GREEN,GREEN,GREEN,GREEN,GRAY]
 		self.posx = posx
 		self.posy = posy
+		self.color = random.choice(options)
 
 	def update(self,xFac,yFac):
+		
 		self.posy += yFac * 50
 		self.posx += xFac * 50
 		self.Rect = pygame.Rect(self.posx + 5, self.posy + 5, 40, 40)
-		self.drawn = pygame.draw.rect(screen, GREEN, self.Rect)
+		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 		
 
 class Water():
@@ -137,23 +138,38 @@ class Tracks():
 	def __init__(self, posy, val):
 		self.posy = posy
 		self.posx = -200 + val*50
-		self.color = GRAY
+		self.color_val = random.randint(150,255)
+		self.color = (self.color_val,self.color_val,self.color_val)
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 
 	def update(self,xFac,yFac):
+		self.color_val -= 2
+		if self.color_val < 0:
+			self.color_val = 255
+			self.color = RED
+		elif self.color_val < 25:
+			self.color = RED
+		else:
+			self.color = (self.color_val,self.color_val,self.color_val)
+
 		self.posy += yFac * 50
 		self.posx += xFac * 50
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+
 def reset_game():
 	return [],[]
+
+def describe_ls(ls):
+	final = []
+	for x in range(len(ls)):
+		final.append(type(ls[x]))
+	return final
 
 
 def main():
 	#setup
-	obj_ls = []
-	obstacles = []
 	running = True
 	start = True
 	class_options = [Road,Field,Field,Field,Road,Tracks]
@@ -170,8 +186,7 @@ def main():
 			former_best = 0
 	highest_score_this_round = 0
 	time_since_move = 0
-	for x in range(5):
-		obj_ls.append(Field(HEIGHT-50-(50*x),0))
+	
 	
 	
 
@@ -213,6 +228,8 @@ def main():
 			screen.blit(best_score_img,text_rect_4)
 			score = 0
 			total_left_right = 0
+			for x in range(5):
+				obj_ls.append(Field(HEIGHT-50-(50*x),0))
 			while start and running:
 				
 				for event in pygame.event.get():
@@ -285,7 +302,6 @@ def main():
 			highest_score_this_round = score
 			time_since_move = 0
 		
-		print(time_since_move)
 		if time_since_move > 100:
 			start = True
 			time_since_move = 0
@@ -296,9 +312,14 @@ def main():
 				start = True
 				break
 
+		for x in range(len(obj_ls)):
+			if type(obj_ls[x]) == Tracks and obj_ls[x].color == RED and pygame.Rect.colliderect(player,obj_ls[x].Rect):
+				start = True
+				break
+
+
 		screen.blit(img,((WIDTH//2)-20-(5*xFac),HEIGHT-95-(5*yFac)))
 		behind_scores_rect = pygame.Rect(0,0,100,60)
-		drawn_rect = pygame.draw.rect(screen, WHITE, behind_scores_rect)
 		screen.blit(your_score_img,(0,0))
 		screen.blit(best_score_img,(0,40))
 		if not running:
