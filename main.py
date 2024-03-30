@@ -320,8 +320,8 @@ def main():
 				pygame.display.update()
 				clock.tick(FPS)
 		
+		xFac=yFac=points_change=0
 		was_x_off = x_offset
-		xFac,yFac,points_change=0,0,0
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				running = False
@@ -407,6 +407,7 @@ def main():
 			else:
 				x_offset -= val + 50
 		
+
 		tree_list,tuple_ls  = [],[]
 		for obj in obj_ls:
 			obj.update(xFac,yFac)
@@ -420,6 +421,8 @@ def main():
 			x_offset = was_x_off
 			for x in range(len(obj_ls)):
 				obj_ls[x].update(-xFac,-yFac)
+	
+
 		if score < 0:
 			score = 0
 			x_offset = was_x_off
@@ -427,7 +430,6 @@ def main():
 				obj_ls[x].update(-xFac,-yFac)
 
 		total_left_right = -(round(x_offset/50))
-
 		y_ls = []
 		for x in range(len(obj_ls)):
 			y_ls.append(obj_ls[x].posy)
@@ -440,7 +442,7 @@ def main():
 				else:
 					obj_ls.append(choice(x,total_left_right))
 
-		print(total_left_right, x_offset)
+		#print(total_left_right, x_offset)
 		#Log fell off map
 		if abs(x_offset) > 200:
 			start = True
