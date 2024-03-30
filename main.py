@@ -98,8 +98,6 @@ class Car():
 		self.Rect = pygame.Rect(self.posx, self.posy, self.width, self.height)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 
-
-
 class Field():
 	def __init__(self, posy, val):
 		self.tree_ls = []
@@ -143,11 +141,10 @@ class Tree_Rock():
 		self.Rect = pygame.Rect(self.posx + 5, self.posy + 5, 40, 40)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 		
-
 class Water():
 	def __init__(self, posy, val):
 		self.width_options = []
-		for x in range(2,5):
+		for x in range(2,4):
 			self.width_options.append(50*x)
 		self.log_ls = []
 		self.posy = posy
@@ -155,9 +152,9 @@ class Water():
 		self.color = BLUE
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
-		self.speed = random.randint(5,10)
+		self.speed = random.randint(2,4)
 		self.dir = random.getrandbits(1) #True is left to right, False is right to left
-		self.log_count = random.randint(4,7)
+		self.log_count = random.randint(5,9)
 		self.start_offset = random.randint(0,(WIDTH+400)//self.log_count)
 		for x in range(self.log_count):
 			self.log_ls.append(Log((x*(WIDTH+400//self.log_count) + self.start_offset), 
@@ -211,9 +208,6 @@ class Log():
 		self.Rect = pygame.Rect(self.posx, self.posy, self.width, self.height)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 
-	
-
-
 class Tracks():
 	def __init__(self, posy, val):
 		self.posy = posy
@@ -243,7 +237,6 @@ class Tracks():
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 
-
 def global_x_update(obj_ls,x_diff,dir):
 	for obj in obj_ls:
 		if dir:
@@ -257,7 +250,7 @@ def main():
 	running = True
 	start = True
 	was_log = False
-	class_options = [Road,Road,Road,Field,Road,Field,Field,Field,Road,Tracks,Water]
+	class_options = [Road,Road,Road,Field,Road,Field,Field,Field,Road,Tracks,Water,Water]
 	player = pygame.Rect((WIDTH//2)-20,HEIGHT-95,40,40)
 	total_left_right = 0
 	score = 0
@@ -327,6 +320,7 @@ def main():
 				pygame.display.update()
 				clock.tick(FPS)
 		
+		was_x_off = x_offset
 		xFac,yFac,points_change=0,0,0
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
@@ -342,52 +336,49 @@ def main():
 					points_change += 1
 				if event.key == pygame.K_LEFT:
 					total_left_right += 1
-					x_offset += 50
+					x_offset -= 50
 					xFac += 1
 				if event.key == pygame.K_RIGHT:
 					total_left_right -= 1
-					x_offset -= 50
+					x_offset += 50
 					xFac -= 1
+		
 		if total_left_right == -5:
 			total_left_right = -4
 			xFac += 1
+			x_offset -= 50
 		elif total_left_right == 5:
 			total_left_right = 4
 			xFac -= 1
-		y_ls = []
-		for x in range(len(obj_ls)):
-			y_ls.append(obj_ls[x].posy)
-
-		for x in range(0,HEIGHT,50):
-			if x not in y_ls:
-				choice = random.choice(class_options)
-				if choice == Road:
-					obj_ls.append(choice(x,total_left_right,obstacles))
-				else:
-					obj_ls.append(choice(x,total_left_right))
+			x_offset += 50
 		
+
 		time_since_move += 1
 
 		if score > highest_score_this_round:
 			highest_score_this_round = score
 			time_since_move = 0
 		
+		#Eagle waiting death
 		if time_since_move > 100:
 			start = True
 			time_since_move = 0
 			continue
-
-		for x in range(len(obstacles)):
-			if pygame.Rect.colliderect(player,obstacles[x].Rect):
-				start = True
-				break
+		
+		#Car death
+		#for x in range(len(obstacles)):
+			#if pygame.Rect.colliderect(player,obstacles[x].Rect):
+				#start = True
+				#break
 		
 		was_log = False
 		collided = False
 		for obj in obj_ls:
+			#Train death
 			if type(obj) == Tracks and obj.color == RED and pygame.Rect.colliderect(player,obj.Rect):
 				start = True
 				break
+			#Log movements
 			if type(obj) == Water and pygame.Rect.colliderect(player,obj.Rect):
 				was_log = True
 				for log in obj.log_ls:
@@ -402,6 +393,7 @@ def main():
 							for obj in obj_ls:
 								obj.manual_x(log.speed)
 						#break
+				#Water fall in
 				if not collided:
 					start = True
 		
@@ -425,12 +417,34 @@ def main():
 			tuple_ls.append((tree_list[x].posx,tree_list[x].posy))
 		if ((WIDTH//2)-25,HEIGHT-100) in tuple_ls:
 			score += points_change
+			x_offset = was_x_off
 			for x in range(len(obj_ls)):
 				obj_ls[x].update(-xFac,-yFac)
 		if score < 0:
 			score = 0
+			x_offset = was_x_off
 			for x in range(len(obj_ls)):
 				obj_ls[x].update(-xFac,-yFac)
+
+		total_left_right = -(round(x_offset/50))
+
+		y_ls = []
+		for x in range(len(obj_ls)):
+			y_ls.append(obj_ls[x].posy)
+
+		for x in range(0,HEIGHT,50):
+			if x not in y_ls:
+				choice = random.choice(class_options)
+				if choice == Road:
+					obj_ls.append(choice(x,total_left_right,obstacles))
+				else:
+					obj_ls.append(choice(x,total_left_right))
+
+		print(total_left_right, x_offset)
+		#Log fell off map
+		if abs(x_offset) > 200:
+			start = True
+			continue
 
 		screen.blit(img,((WIDTH//2)-20-(5*xFac),HEIGHT-95-(5*yFac)))
 		behind_scores_rect = pygame.Rect(0,0,100,60)
