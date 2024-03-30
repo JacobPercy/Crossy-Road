@@ -61,6 +61,13 @@ class Road():
 		for x in range(len(self.car_ls)):
 			self.car_ls[x].update(self.posy+5,xFac)
 
+	def manual_x(self,xFac):
+		self.posx += xFac
+		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
+		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+		for x in range(len(self.car_ls)):
+			self.car_ls[x].manual_x(xFac)
+
 class Car():
 	def __init__(self,posx,posy,width,speed,dir):
 		self.width = width
@@ -73,6 +80,7 @@ class Car():
 		self.Rect = pygame.Rect(self.posx, self.posy, self.width, self.height)
 	
 	def update(self,posy,xFac):
+		self.posy = posy
 		if self.dir:
 			self.posx += self.speed
 		else:
@@ -83,6 +91,11 @@ class Car():
 		elif self.posx - self.width > WIDTH+400:
 			self.posx = -200
 		self.Rect = pygame.Rect(self.posx, posy, self.width, self.height)
+		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+
+	def manual_x(self,xFac):
+		self.posx += xFac
+		self.Rect = pygame.Rect(self.posx, self.posy, self.width, self.height)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 
 
@@ -100,12 +113,17 @@ class Field():
 	def update(self,xFac,yFac):
 		self.posy += yFac * 50
 		self.posx += xFac * 50
-		
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 		for x in range(len(self.tree_ls)):
 			self.tree_ls[x].update(xFac,yFac)
 
+	def manual_x(self,xFac):
+		self.posx += xFac
+		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
+		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+		for x in range(len(self.tree_ls)):
+			self.tree_ls[x].manual_x(xFac)
 
 class Tree_Rock():
 	def __init__(self,posx,posy):
@@ -115,9 +133,13 @@ class Tree_Rock():
 		self.color = random.choice(options)
 
 	def update(self,xFac,yFac):
-		
 		self.posy += yFac * 50
 		self.posx += xFac * 50
+		self.Rect = pygame.Rect(self.posx + 5, self.posy + 5, 40, 40)
+		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+
+	def manual_x(self,xFac):
+		self.posx += xFac
 		self.Rect = pygame.Rect(self.posx + 5, self.posy + 5, 40, 40)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 		
@@ -152,6 +174,13 @@ class Water():
 		for x in range(len(self.log_ls)):
 			self.log_ls[x].update(xFac,self.posy+10)
 
+	def manual_x(self,xFac):
+		self.posx += xFac
+		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
+		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+		for x in range(len(self.log_ls)):
+			self.log_ls[x].manual_x(xFac)
+
 class Log():
 	def __init__(self,posx,posy,width,speed,dir):
 		self.color = BROWN
@@ -176,6 +205,13 @@ class Log():
 			self.posx = -200
 		self.Rect = pygame.Rect(self.posx, posy, self.width, self.height)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+
+	def manual_x(self,xFac):
+		self.posx += xFac
+		self.Rect = pygame.Rect(self.posx, self.posy, self.width, self.height)
+		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+
+	
 
 
 class Tracks():
@@ -202,12 +238,19 @@ class Tracks():
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 
-def describe_ls(ls):
-	final = []
-	for x in range(len(ls)):
-		final.append(type(ls[x]))
-	return final
+	def manual_x(self,xFac):
+		self.posx += xFac
+		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
+		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 
+
+def global_x_update(obj_ls,x_diff,dir):
+	for obj in obj_ls:
+		if dir:
+			obj.posx += x_diff
+		else:
+			obj.posx -= x_diff
+	return obj_ls
 
 def main():
 	#setup
@@ -227,10 +270,6 @@ def main():
 			former_best = 0
 	highest_score_this_round = 0
 	time_since_move = 0
-	
-	
-	
-
 	#main loop
 	while running:
 		font = pygame.font.Font('freesansbold.ttf', 40)
@@ -321,23 +360,7 @@ def main():
 				else:
 					obj_ls.append(choice(x,total_left_right))
 		
-		tree_list = []
-		tuple_ls = []
-		for x in range(len(obj_ls)):
-			obj_ls[x].update(xFac,yFac)
-			if type(obj_ls[x]) == Field:
-				tree_list += obj_ls[x].tree_ls
-
-		for x in range(len(tree_list)):
-			tuple_ls.append((tree_list[x].posx,tree_list[x].posy))
-		if ((WIDTH//2)-25,HEIGHT-100) in tuple_ls:
-			score += points_change
-			for x in range(len(obj_ls)):
-				obj_ls[x].update(-xFac,-yFac)
-		if score < 0:
-			score = 0
-			for x in range(len(obj_ls)):
-				obj_ls[x].update(-xFac,-yFac)
+		
 		
 		time_since_move += 1
 
@@ -354,15 +377,43 @@ def main():
 			if pygame.Rect.colliderect(player,obstacles[x].Rect):
 				start = True
 				break
-
-		for x in range(len(obj_ls)):
-			if type(obj_ls[x]) == Tracks and obj_ls[x].color == RED and pygame.Rect.colliderect(player,obj_ls[x].Rect):
+		
+		collided = False
+		for obj in obj_ls:
+			if type(obj) == Tracks and obj.color == RED and pygame.Rect.colliderect(player,obj.Rect):
 				start = True
 				break
-			if type(obj_ls[x]) == Water and pygame.Rect.colliderect(player,obj_ls[x].Rect):
-				start = True
-				break
+			if type(obj) == Water and pygame.Rect.colliderect(player,obj.Rect):
+				for log in obj.log_ls:
+					if pygame.Rect.colliderect(player,log.Rect):
+						collided = True
+						for obj in obj_ls:
+							if log.dir:
+								obj.manual_x(-log.speed)
+							else:
+								obj.manual_x(log.speed)
+				if not collided:
+					start = True
+		
+		
+			
+		tree_list = []
+		tuple_ls = []
+		for obj in obj_ls:
+			obj.update(xFac,yFac)
+			if type(obj) == Field:
+				tree_list += obj.tree_ls
 
+		for x in range(len(tree_list)):
+			tuple_ls.append((tree_list[x].posx,tree_list[x].posy))
+		if ((WIDTH//2)-25,HEIGHT-100) in tuple_ls:
+			score += points_change
+			for x in range(len(obj_ls)):
+				obj_ls[x].update(-xFac,-yFac)
+		if score < 0:
+			score = 0
+			for x in range(len(obj_ls)):
+				obj_ls[x].update(-xFac,-yFac)
 
 		screen.blit(img,((WIDTH//2)-20-(5*xFac),HEIGHT-95-(5*yFac)))
 		behind_scores_rect = pygame.Rect(0,0,100,60)
