@@ -256,10 +256,12 @@ def main():
 	#setup
 	running = True
 	start = True
+	was_log = False
 	class_options = [Road,Road,Road,Field,Road,Field,Field,Field,Road,Tracks,Water]
 	player = pygame.Rect((WIDTH//2)-20,HEIGHT-95,40,40)
 	total_left_right = 0
 	score = 0
+	x_offset = 0
 	with open("best_score.txt","r") as f:
 		file = f.read()
 		if len(file) > 0:
@@ -282,9 +284,11 @@ def main():
 		if start:
 			if score > best_score:
 				best_score = score
+			x_offset = 0
 			highest_score_this_round = 0
 			time_since_move = 0
 			obstacles,obj_ls = [],[]
+
 			screen.fill(SPECIAL_BLUE)
 
 			screen.blit(img_2,((WIDTH//2)-114,200))
@@ -338,9 +342,11 @@ def main():
 					points_change += 1
 				if event.key == pygame.K_LEFT:
 					total_left_right += 1
+					x_offset += 50
 					xFac += 1
 				if event.key == pygame.K_RIGHT:
 					total_left_right -= 1
+					x_offset -= 50
 					xFac -= 1
 		if total_left_right == -5:
 			total_left_right = -4
@@ -360,8 +366,6 @@ def main():
 				else:
 					obj_ls.append(choice(x,total_left_right))
 		
-		
-		
 		time_since_move += 1
 
 		if score > highest_score_this_round:
@@ -378,27 +382,40 @@ def main():
 				start = True
 				break
 		
+		was_log = False
 		collided = False
 		for obj in obj_ls:
 			if type(obj) == Tracks and obj.color == RED and pygame.Rect.colliderect(player,obj.Rect):
 				start = True
 				break
 			if type(obj) == Water and pygame.Rect.colliderect(player,obj.Rect):
+				was_log = True
 				for log in obj.log_ls:
 					if pygame.Rect.colliderect(player,log.Rect):
 						collided = True
-						for obj in obj_ls:
-							if log.dir:
+						if log.dir:
+							x_offset += log.speed
+							for obj in obj_ls:
 								obj.manual_x(-log.speed)
-							else:
+						else:
+							x_offset -= log.speed
+							for obj in obj_ls:
 								obj.manual_x(log.speed)
+						#break
 				if not collided:
 					start = True
 		
+		if not was_log:
+			val = x_offset % 50
+			for obj in obj_ls:
+				obj.manual_x(val)
+			temp = [abs(x_offset-(x_offset-val)),abs(x_offset-(x_offset-val+50))]
+			if min(temp) == abs(x_offset-(x_offset-val)):
+				x_offset -= val
+			else:
+				x_offset -= val + 50
 		
-			
-		tree_list = []
-		tuple_ls = []
+		tree_list,tuple_ls  = [],[]
 		for obj in obj_ls:
 			obj.update(xFac,yFac)
 			if type(obj) == Field:
@@ -417,7 +434,7 @@ def main():
 
 		screen.blit(img,((WIDTH//2)-20-(5*xFac),HEIGHT-95-(5*yFac)))
 		behind_scores_rect = pygame.Rect(0,0,100,60)
-		drawn_rect = pygame.draw.rect(screen, WHITE, behind_scores_rect)
+		pygame.draw.rect(screen, WHITE, behind_scores_rect)
 		screen.blit(your_score_img,(0,0))
 		screen.blit(best_score_img,(0,40))
 		if not running:
