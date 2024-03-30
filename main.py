@@ -408,19 +408,18 @@ def main():
 				x_offset -= val + 50
 		
 
-		tree_list,tuple_ls  = [],[]
+		tree_list = []
 		for obj in obj_ls:
 			obj.update(xFac,yFac)
 			if type(obj) == Field:
 				tree_list += obj.tree_ls
 
-		for x in range(len(tree_list)):
-			tuple_ls.append((tree_list[x].posx,tree_list[x].posy))
-		if ((WIDTH//2)-25,HEIGHT-100) in tuple_ls:
-			score += points_change
-			x_offset = was_x_off
-			for x in range(len(obj_ls)):
-				obj_ls[x].update(-xFac,-yFac)
+		for tree in tree_list:
+			if pygame.Rect.colliderect(player,tree.Rect):
+				score += points_change
+				x_offset = was_x_off
+				for obj in obj_ls:
+					obj.update(-xFac,-yFac)
 	
 
 		if score < 0:
