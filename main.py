@@ -392,21 +392,10 @@ def main():
 							x_offset -= log.speed
 							for obj in obj_ls:
 								obj.manual_x(log.speed)
-						#break
+						break
 				#Water fall in
 				if not collided:
 					start = True
-		
-		if not was_log:
-			val = x_offset % 50
-			for obj in obj_ls:
-				obj.manual_x(val)
-			temp = [abs(x_offset-(x_offset-val)),abs(x_offset-(x_offset-val+50))]
-			if min(temp) == abs(x_offset-(x_offset-val)):
-				x_offset -= val
-			else:
-				x_offset -= val + 50
-
 
 		tree_list = []
 		for obj in obj_ls:
