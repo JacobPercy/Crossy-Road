@@ -34,9 +34,9 @@ clock = pygame.time.Clock()
 FPS = 15
 
 class Road():
-	def __init__(self, posy, val, obstacles):
+	def __init__(self, posy, posx, obstacles):
 		self.car_ls = []
-		self.posx = -200 + val*50
+		self.posx = posx
 		self.posy = posy
 		self.color = BLACK
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
@@ -99,10 +99,10 @@ class Car():
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 
 class Field():
-	def __init__(self, posy, val):
+	def __init__(self, posy, posx):
 		self.tree_ls = []
 		self.posy = posy
-		self.posx = -200 + val*50
+		self.posx = posx
 		self.color = LIGHT_GREEN
 		for x in range(3):
 			rand_val = random.randint(-200,WIDTH+350)
@@ -142,13 +142,13 @@ class Tree_Rock():
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 		
 class Water():
-	def __init__(self, posy, val):
+	def __init__(self, posy, posx):
 		self.width_options = []
 		for x in range(2,4):
 			self.width_options.append(50*x)
 		self.log_ls = []
 		self.posy = posy
-		self.posx = -200 + val*50
+		self.posx = posx
 		self.color = BLUE
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
@@ -209,9 +209,9 @@ class Log():
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 
 class Tracks():
-	def __init__(self, posy, val):
+	def __init__(self, posy, posx):
 		self.posy = posy
-		self.posx = -200 + val*50
+		self.posx = posx
 		self.color_val = random.randint(50,255)
 		self.color = (self.color_val,self.color_val,self.color_val)
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
@@ -366,10 +366,10 @@ def main():
 			continue
 		
 		#Car death
-		#for x in range(len(obstacles)):
-			#if pygame.Rect.colliderect(player,obstacles[x].Rect):
-				#start = True
-				#break
+		for x in range(len(obstacles)):
+			if pygame.Rect.colliderect(player,obstacles[x].Rect):
+				start = True
+				break
 		
 		was_log = False
 		collided = False
@@ -406,7 +406,7 @@ def main():
 				x_offset -= val
 			else:
 				x_offset -= val + 50
-		
+
 
 		tree_list = []
 		for obj in obj_ls:
@@ -421,13 +421,13 @@ def main():
 				for obj in obj_ls:
 					obj.update(-xFac,-yFac)
 	
-
 		if score < 0:
 			score = 0
 			x_offset = was_x_off
 			for x in range(len(obj_ls)):
 				obj_ls[x].update(-xFac,-yFac)
 
+		spawn_loc=-200-x_offset
 		total_left_right = -(round(x_offset/50))
 		y_ls = []
 		for x in range(len(obj_ls)):
@@ -437,9 +437,11 @@ def main():
 			if x not in y_ls:
 				choice = random.choice(class_options)
 				if choice == Road:
-					obj_ls.append(choice(x,total_left_right,obstacles))
+					obj_ls.append(choice(x,spawn_loc,obstacles))
 				else:
-					obj_ls.append(choice(x,total_left_right))
+					obj_ls.append(choice(x,spawn_loc))
+		
+		
 
 		#print(total_left_right, x_offset)
 		#Log fell off map
