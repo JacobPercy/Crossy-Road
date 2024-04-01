@@ -41,7 +41,7 @@ class Road():
 		self.color = BLACK
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
-		self.speed = int(2.0*sqrt(random.randint(9,60)))
+		self.speed = int(2.0*sqrt(random.randint(10,40)))
 		self.dir = random.getrandbits(1) #True is left to right, False is right to left
 		self.car_width = random.randint(65,120)
 		self.car_count = random.randint(2,4)
