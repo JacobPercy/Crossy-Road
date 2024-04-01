@@ -39,15 +39,15 @@ class Road():
 		self.posx = posx
 		self.posy = posy
 		self.color = BLACK
-		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
+		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 		self.speed = int(2.0*sqrt(random.randint(10,40)))
 		self.dir = random.getrandbits(1) #True is left to right, False is right to left
 		self.car_width = random.randint(65,120)
 		self.car_count = random.randint(2,4)
-		self.start_offset = random.randint(0,(WIDTH+400)//self.car_count)
+		self.start_offset = random.randint(0,(WIDTH+1000)//self.car_count)
 		for x in range(self.car_count):
-			self.car_ls.append(Car((x*(WIDTH+400//self.car_count))+self.start_offset, 
+			self.car_ls.append(Car((x*(WIDTH+1000//self.car_count))+self.start_offset, 
 													self.posy+5, 
 						  							self.car_width, 
 						  							self.speed,self.dir))
@@ -56,14 +56,14 @@ class Road():
 	def update(self,xFac,yFac):
 		self.posy += yFac * 50
 		self.posx += xFac * 50
-		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
+		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 		for x in range(len(self.car_ls)):
 			self.car_ls[x].update(self.posy+5,xFac)
 
 	def manual_x(self,xFac):
 		self.posx += xFac
-		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
+		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 		for x in range(len(self.car_ls)):
 			self.car_ls[x].manual_x(xFac)
@@ -86,10 +86,10 @@ class Car():
 		else:
 			self.posx -= self.speed
 		self.posx += xFac*50
-		if self.posx < -200:
-			self.posx = WIDTH+400 #-self.width-(-200 - self.posx)
-		elif self.posx - self.width > WIDTH+400:
-			self.posx = -200
+		if self.posx < -500:
+			self.posx = WIDTH+1000 #-self.width-(-200 - self.posx)
+		elif self.posx - self.width > WIDTH+1000:
+			self.posx = -500
 		self.Rect = pygame.Rect(self.posx, posy, self.width, self.height)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 
@@ -105,20 +105,20 @@ class Field():
 		self.posx = posx
 		self.color = LIGHT_GREEN
 		for x in range(3):
-			rand_val = random.randint(-200,WIDTH+350)
+			rand_val = random.randint(-500,WIDTH+950)
 			self.tree_ls.append(Tree_Rock(rand_val - rand_val%50,self.posy))
 
 	def update(self,xFac,yFac):
 		self.posy += yFac * 50
 		self.posx += xFac * 50
-		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
+		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 		for x in range(len(self.tree_ls)):
 			self.tree_ls[x].update(xFac,yFac)
 
 	def manual_x(self,xFac):
 		self.posx += xFac
-		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
+		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 		for x in range(len(self.tree_ls)):
 			self.tree_ls[x].manual_x(xFac)
@@ -150,14 +150,14 @@ class Water():
 		self.posy = posy
 		self.posx = posx
 		self.color = BLUE
-		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
+		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 		self.speed = random.randint(2,4)
 		self.dir = random.getrandbits(1) #True is left to right, False is right to left
-		self.log_count = random.randint(5,9)
-		self.start_offset = random.randint(0,(WIDTH+400)//self.log_count)
+		self.log_count = random.randint(7,10)
+		self.start_offset = random.randint(0,(WIDTH+1000)//self.log_count)
 		for x in range(self.log_count):
-			self.log_ls.append(Log((x*(WIDTH+400//self.log_count) + self.start_offset), 
+			self.log_ls.append(Log((x*(WIDTH+1000//self.log_count) + self.start_offset), 
 													self.posy+10,
 						  							random.choice(self.width_options), 
 						  							self.speed,
@@ -166,14 +166,14 @@ class Water():
 	def update(self,xFac,yFac):
 		self.posy += yFac * 50
 		self.posx += xFac * 50
-		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
+		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 		for x in range(len(self.log_ls)):
 			self.log_ls[x].update(xFac,self.posy+10)
 
 	def manual_x(self,xFac):
 		self.posx += xFac
-		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
+		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 		for x in range(len(self.log_ls)):
 			self.log_ls[x].manual_x(xFac)
@@ -196,10 +196,10 @@ class Log():
 		else:
 			self.posx -= self.speed
 		self.posx += xFac*50
-		if self.posx < -200:
-			self.posx = WIDTH+400 - self.width
-		elif self.posx + self.width > WIDTH+400:
-			self.posx = -200
+		if self.posx < -500:
+			self.posx = WIDTH+1000 - self.width
+		elif self.posx + self.width > WIDTH+1000:
+			self.posx = -500
 		self.Rect = pygame.Rect(self.posx, posy, self.width, self.height)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 
@@ -214,7 +214,7 @@ class Tracks():
 		self.posx = posx
 		self.color_val = random.randint(50,255)
 		self.color = (self.color_val,self.color_val,self.color_val)
-		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
+		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 
 	def update(self,xFac,yFac):
@@ -229,12 +229,12 @@ class Tracks():
 
 		self.posy += yFac * 50
 		self.posx += xFac * 50
-		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
+		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 
 	def manual_x(self,xFac):
 		self.posx += xFac
-		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+400, 50)
+		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 
 def global_x_update(obj_ls,x_diff,dir):
@@ -343,12 +343,12 @@ def main():
 					x_offset += 50
 					xFac -= 1
 		
-		if total_left_right == -5:
-			total_left_right = -4
+		if total_left_right == -11:
+			total_left_right = -10
 			xFac += 1
 			x_offset -= 50
-		elif total_left_right == 5:
-			total_left_right = 4
+		elif total_left_right == 11:
+			total_left_right = 10
 			xFac -= 1
 			x_offset += 50
 		
@@ -360,7 +360,7 @@ def main():
 			time_since_move = 0
 		
 		#Eagle waiting death
-		if time_since_move > 100:
+		if time_since_move > 200:
 			start = True
 			time_since_move = 0
 			continue
@@ -427,7 +427,7 @@ def main():
 			for x in range(len(obj_ls)):
 				obj_ls[x].update(-xFac,-yFac)
 
-		spawn_loc=-200-x_offset
+		spawn_loc=-500-x_offset
 		total_left_right = -(round(x_offset/50))
 		y_ls = []
 		for x in range(len(obj_ls)):
@@ -445,7 +445,7 @@ def main():
 
 		#print(total_left_right, x_offset)
 		#Log fell off map
-		if abs(x_offset) > 200:
+		if abs(x_offset) > 500:
 			start = True
 			continue
 
