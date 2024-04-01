@@ -104,7 +104,6 @@ class Field():
 		self.posy = posy
 		self.posx = posx
 		self.color = LIGHT_GREEN
-		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		for x in range(3):
 			rand_val = random.randint(-500,WIDTH+950)
 			self.tree_ls.append(Tree_Rock(rand_val - rand_val%50,self.posy))
@@ -153,13 +152,12 @@ class Water():
 		self.color = BLUE
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
-		self.speed = random.randint(4,10)
+		self.speed = random.randint(4,8)
 		self.dir = random.getrandbits(1) #True is left to right, False is right to left
-		self.log_count = random.randint(7,10)
+		self.log_count = random.randint(7,15)
 		self.start_offset = random.randint(0,(WIDTH+1000)//self.log_count)
 		for x in range(self.log_count):
-			self.log_ls.append(Log(
-													(x*(WIDTH+1000//self.log_count) + self.start_offset), 
+			self.log_ls.append(Log((x*(WIDTH+1000//self.log_count) + self.start_offset), 
 													self.posy+10,
 						  							random.choice(self.width_options), 
 						  							self.speed,
@@ -193,7 +191,6 @@ class Log():
 		self.drawn = pygame.draw.rect(screen,self.color,self.Rect)
 	
 	def update(self,xFac,posy):
-		self.posy = posy
 		if self.dir:
 			self.posx += self.speed
 		else:
@@ -203,7 +200,7 @@ class Log():
 			self.posx = WIDTH+1000 - self.width
 		elif self.posx + self.width > WIDTH+1000:
 			self.posx = -500
-		self.Rect = pygame.Rect(self.posx, self.posy, self.width, self.height)
+		self.Rect = pygame.Rect(self.posx, posy, self.width, self.height)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
 
 	def manual_x(self,xFac):
@@ -400,17 +397,16 @@ def main():
 				if not collided:
 					start = True
 		
-		
 		if not was_log:
+			val = x_offset % 50
 			for obj in obj_ls:
-				if pygame.Rect.colliderect(player,obj.Rect):
-					current_tile = obj
-			if current_tile.posx % 50 != 0:
-				current_tile.manual_x((round(current_tile.posx/50) * 50) - current_tile.posx)
-		
-		if not was_log:
-			for obj in obj_ls:
-				obj.manual_x(current_tile.posx-obj.posx)
+				obj.manual_x(val)
+			temp = [abs(x_offset-(x_offset-val)),abs(x_offset-(x_offset-val+50))]
+			if min(temp) == abs(x_offset-(x_offset-val)):
+				x_offset -= val
+			else:
+				x_offset -= val + 50
+
 
 		tree_list = []
 		for obj in obj_ls:
