@@ -39,6 +39,14 @@ road_img = pygame.transform.scale(road_img, (50,50))
 water_img = pygame.image.load("ocean.png")
 water_img = pygame.transform.scale(water_img, (50,50))
 
+tree_img = pygame.image.load("tree.png")
+tree_img = pygame.transform.scale(tree_img, (50,50))
+
+rock_img = pygame.image.load("rock.png")
+rock_img = pygame.transform.scale(rock_img, (50,50))
+
+
+
 clock = pygame.time.Clock() 
 FPS = 15
 
@@ -149,17 +157,36 @@ class Tree_Rock():
 		self.posy = posy
 		self.parent = parent
 		self.color = random.choice(options)
+		self.Rect = pygame.Rect(self.posx + 5, self.posy + 5, 40, 40)
+		if self.color == GREEN:
+			for x in range(self.posx,self.posx+self.Rect.width,50):
+				screen.blit(tree_img,(x-2,self.posy))
+		else:
+			for x in range(self.posx,self.posx+self.Rect.width,50):
+				screen.blit(rock_img,(x-2,self.posy))
 
 	def update(self,xFac,yFac):
 		self.posy += yFac * 50
 		self.posx += xFac * 50
 		self.Rect = pygame.Rect(self.posx + 5, self.posy + 5, 40, 40)
-		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+		if self.color == GREEN:
+			for x in range(self.posx,self.posx+self.Rect.width,50):
+				screen.blit(tree_img,(x-2,self.posy))
+		else:
+			for x in range(self.posx,self.posx+self.Rect.width,50):
+				screen.blit(rock_img,(x-2,self.posy))
+
 
 	def manual_x(self,xFac):
 		self.posx += xFac
 		self.Rect = pygame.Rect(self.posx + 5, self.posy + 5, 40, 40)
-		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+		if self.color == GREEN:
+			for x in range(self.posx,self.posx+self.Rect.width,50):
+				screen.blit(tree_img,(x-2,self.posy))
+		else:
+			for x in range(self.posx,self.posx+self.Rect.width,50):
+				screen.blit(rock_img,(x-2,self.posy))
+
 		
 class Water():
 	def __init__(self, posy, posx):
@@ -307,6 +334,8 @@ def main():
 			highest_score_this_round = 0
 			time_since_move = 0
 			obstacles,obj_ls = [],[]
+			for x in range(4):
+				obj_ls.append(Field(HEIGHT-50-(50*x),-500))
 
 			screen.fill(SPECIAL_BLUE)
 
@@ -333,8 +362,7 @@ def main():
 			screen.blit(best_score_img,text_rect_4)
 			score = 0
 			total_left_right = 0
-			for x in range(4):
-				obj_ls.append(Field(HEIGHT-50-(50*x),-500))
+			
 			while start and running:
 				
 				for event in pygame.event.get():
