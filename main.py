@@ -18,7 +18,7 @@ PURPLE = (160,32,255)
 BROWN = (139,69,19)
 SPECIAL_BLUE = (105,206,236)
 
-car_colors = [RED,RED,ORANGE,YELLOW,YELLOW,BLUE,BLUE,BLUE,PURPLE,PINK]
+car_colors = [RED,RED,ORANGE,ORANGE,YELLOW,YELLOW,BLUE,BLUE,PURPLE,PINK]
 obj_ls = []
 
 WIDTH, HEIGHT = 450, 650
@@ -29,6 +29,12 @@ pygame.display.set_caption("Rossy Croad")
 img = pygame.image.load('chicken3.webp')
 img = pygame.transform.scale(img, (40,40))
 img_2 = pygame.transform.scale(img, (228,360))
+
+grass_img = pygame.image.load("grass.png")
+grass_img = pygame.transform.scale(grass_img, (50,50))
+
+road_img = pygame.image.load("road.jpg")
+road_img = pygame.transform.scale(road_img, (50,50))
 
 clock = pygame.time.Clock() 
 FPS = 15
@@ -41,6 +47,8 @@ class Road():
 		self.color = BLACK
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+		for x in range(self.posx,self.posx+self.Rect.width,50):
+			screen.blit(road_img,(x,self.posy))
 		self.speed = int(2.0*sqrt(random.randint(10,40)))
 		self.dir = random.getrandbits(1) #True is left to right, False is right to left
 		self.car_width = random.randint(65,120)
@@ -58,6 +66,8 @@ class Road():
 		self.posx += xFac * 50
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+		for x in range(self.posx,self.posx+self.Rect.width,50):
+			screen.blit(road_img,(x,self.posy))
 		for x in range(len(self.car_ls)):
 			self.car_ls[x].update(self.posy+5,xFac)
 
@@ -65,6 +75,8 @@ class Road():
 		self.posx += xFac
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+		for x in range(self.posx,self.posx+self.Rect.width,50):
+			screen.blit(road_img,(x,self.posy))
 		for x in range(len(self.car_ls)):
 			self.car_ls[x].manual_x(xFac)
 
@@ -106,13 +118,15 @@ class Field():
 		self.color = LIGHT_GREEN
 		for x in range(3):
 			rand_val = random.randint(-500,WIDTH+950)
-			self.tree_ls.append(Tree_Rock(rand_val - rand_val%50,self.posy))
+			self.tree_ls.append(Tree_Rock(rand_val - rand_val%50,self.posy,self))
 
 	def update(self,xFac,yFac):
 		self.posy += yFac * 50
 		self.posx += xFac * 50
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+		for x in range(self.posx,self.posx+self.Rect.width,50):
+			screen.blit(grass_img,(x,self.posy))
 		for x in range(len(self.tree_ls)):
 			self.tree_ls[x].update(xFac,yFac)
 
@@ -120,14 +134,17 @@ class Field():
 		self.posx += xFac
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+		for x in range(self.posx,self.posx+self.Rect.width,50):
+			screen.blit(grass_img,(x,self.posy))
 		for x in range(len(self.tree_ls)):
 			self.tree_ls[x].manual_x(xFac)
 
 class Tree_Rock():
-	def __init__(self,posx,posy):
-		options = [GREEN,GREEN,GREEN,GREEN,GRAY]
+	def __init__(self,posx,posy,parent):
+		options = [GREEN,GREEN,GREEN,GREEN,GREEN,GREEN,GRAY]
 		self.posx = posx
 		self.posy = posy
+		self.parent = parent
 		self.color = random.choice(options)
 
 	def update(self,xFac,yFac):
@@ -144,7 +161,7 @@ class Tree_Rock():
 class Water():
 	def __init__(self, posy, posx):
 		self.width_options = []
-		for x in range(2,4):
+		for x in range(3,6):
 			self.width_options.append(50*x)
 		self.log_ls = []
 		self.posy = posy
@@ -250,7 +267,7 @@ def main():
 	running = True
 	start = True
 	was_log = False
-	class_options = [Road,Road,Road,Field,Road,Field,Field,Field,Road,Tracks,Water,Water]
+	class_options = [Road,Road,Road,Field,Field,Field,Water,Water,Tracks]
 	player = pygame.Rect((WIDTH//2)-20,HEIGHT-95,40,40)
 	total_left_right = 0
 	score = 0
@@ -352,7 +369,6 @@ def main():
 			xFac -= 1
 			x_offset += 50
 		
-
 		time_since_move += 1
 
 		if score > highest_score_this_round:
@@ -379,23 +395,25 @@ def main():
 				start = True
 				break
 			#Log movements
-			if type(obj) == Water and pygame.Rect.colliderect(player,obj.Rect):
-				was_log = True
-				for log in obj.log_ls:
-					if pygame.Rect.colliderect(player,log.Rect):
-						collided = True
-						if log.dir:
-							x_offset += log.speed
-							for obj in obj_ls:
-								obj.manual_x(-log.speed)
-						else:
-							x_offset -= log.speed
-							for obj in obj_ls:
-								obj.manual_x(log.speed)
+			if not collided:
+				if type(obj) == Water and pygame.Rect.colliderect(player,obj.Rect):
+					was_log = True
+					for log in obj.log_ls:
+						if pygame.Rect.colliderect(player,log.Rect):
+							collided = True
+							if log.dir:
+								x_offset += log.speed
+								for obj in obj_ls:
+									obj.manual_x(-log.speed)
+							else:
+								x_offset -= log.speed
+								for obj in obj_ls:
+									obj.manual_x(log.speed)
+							break
+					#Water fall in
+					if not collided:
+						start = True
 						break
-				#Water fall in
-				if not collided:
-					start = True
 
 		tree_list = []
 		for obj in obj_ls:
@@ -403,9 +421,13 @@ def main():
 			if type(obj) == Field:
 				tree_list += obj.tree_ls
 
+		already_updated = []
 		for tree in tree_list:
 			if not was_log and tree.posx % 50 != 0:
 				tree.manual_x((round(tree.posx/50) * 50) - tree.posx)
+				if tree.parent.posy not in already_updated:
+					tree.parent.manual_x((round(tree.posx/50) * 50) - tree.posx)
+					already_updated.append(tree.parent.posy)
 			if pygame.Rect.colliderect(player,tree.Rect):
 				score += points_change
 				x_offset = was_x_off
