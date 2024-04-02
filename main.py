@@ -26,7 +26,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 pygame.display.set_caption("Rossy Croad")
 
-img = pygame.image.load('chicken3.webp')
+img = pygame.image.load('chicken.webp')
 img = pygame.transform.scale(img, (40,40))
 img_2 = pygame.transform.scale(img, (228,360))
 
@@ -35,6 +35,9 @@ grass_img = pygame.transform.scale(grass_img, (50,50))
 
 road_img = pygame.image.load("road.jpg")
 road_img = pygame.transform.scale(road_img, (50,50))
+
+water_img = pygame.image.load("ocean.png")
+water_img = pygame.transform.scale(water_img, (50,50))
 
 clock = pygame.time.Clock() 
 FPS = 15
@@ -173,6 +176,8 @@ class Water():
 		self.dir = random.getrandbits(1) #True is left to right, False is right to left
 		self.log_count = random.randint(7,15)
 		self.start_offset = random.randint(0,(WIDTH+1000)//self.log_count)
+		for x in range(self.posx,self.posx+self.Rect.width,50):
+			screen.blit(water_img,(x,self.posy))
 		for x in range(self.log_count):
 			self.log_ls.append(Log((x*(WIDTH+1000//self.log_count) + self.start_offset), 
 													self.posy+10,
@@ -185,6 +190,8 @@ class Water():
 		self.posx += xFac * 50
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+		for x in range(self.posx,self.posx+self.Rect.width,50):
+			screen.blit(water_img,(x,self.posy))
 		for x in range(len(self.log_ls)):
 			self.log_ls[x].update(xFac,self.posy+10)
 
@@ -192,6 +199,8 @@ class Water():
 		self.posx += xFac
 		self.Rect = pygame.Rect(self.posx, self.posy, WIDTH+1000, 50)
 		self.drawn = pygame.draw.rect(screen, self.color, self.Rect)
+		for x in range(self.posx,self.posx+self.Rect.width,50):
+			screen.blit(water_img,(x,self.posy))
 		for x in range(len(self.log_ls)):
 			self.log_ls[x].manual_x(xFac)
 
