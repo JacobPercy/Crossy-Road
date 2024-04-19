@@ -186,7 +186,6 @@ class Tree_Rock():
 		else:
 			for x in range(self.posx,self.posx+self.Rect.width,50):
 				screen.blit(rock_img,(x-2,self.posy))
-
 		
 class Water():
 	def __init__(self, posy, posx):
@@ -309,13 +308,13 @@ def main():
 	score = 0
 	x_offset = 0
 	with open("best_score.txt","r") as f:
-		file = f.read()
-		if len(file) > 0:
-			best_score = int(file.split("\n")[-2])
-			former_best = best_score
-		else:
-			best_score = 0
-			former_best = 0
+		file = f.readlines()
+	if file:
+		best_score = int(file[-1])
+		former_best = best_score
+	else:
+		best_score = 0
+		former_best = 0
 	highest_score_this_round = 0
 	time_since_move = 0
 	#main loop
@@ -364,7 +363,6 @@ def main():
 			total_left_right = 0
 			
 			while start and running:
-				
 				for event in pygame.event.get():
 					if event.type == pygame.QUIT:
 						running = False
@@ -413,7 +411,7 @@ def main():
 			time_since_move = 0
 		
 		#Eagle waiting death
-		if time_since_move > 200:
+		if time_since_move > 250:
 			start = True
 			time_since_move = 0
 			continue
